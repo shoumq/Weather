@@ -66,6 +66,10 @@ namespace Api
             {
                 weather.Content = "Облачно";
             }
+            if (oW.weather[0].main == "Rain")
+            {
+                weather.Content = "Дождь";
+            }
 
             city.Content = oW.name + ", " + oW.sys.country;
 
@@ -121,6 +125,10 @@ namespace Api
             {
                 weather.Content = "Облачно";
             }
+            if (oW.weather[0].main == "Rain")
+            {
+                weather.Content = "Дождь";
+            }
 
             city.Content = oW.name + ", " + oW.sys.country;
 
@@ -171,6 +179,10 @@ namespace Api
                 if (oW.weather[0].main == "Clouds")
                 {
                     weather.Content = "Облачно";
+                }
+                if (oW.weather[0].main == "Rain")
+                {
+                    weather.Content = "Дождь";
                 }
 
                 city.Content = oW.name + ", " + oW.sys.country;
