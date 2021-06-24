@@ -23,9 +23,11 @@ namespace Api
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
+    /// 
     public partial class MainWindow : Window
     {
-        public MainWindow(string url)
+
+        public MainWindow()
         {
             InitializeComponent();
             Api();
@@ -33,29 +35,6 @@ namespace Api
             LiveTime.Interval = TimeSpan.FromSeconds(1);
             LiveTime.Tick += timer_Tick;
             LiveTime.Start();
-        }
-
-        public void UrlValidator()
-        {
-            string text = Convert.ToString(search.Text);
-            string url = "http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52";
-            try
-            {
-                if (!string.IsNullOrEmpty(url))
-                {
-                    UriBuilder uriBuilder = new UriBuilder(url);
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                    if (response.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        MessageBox.Show("Населенный пунет не найден.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Населенный пунет не найден.");
-            }
         }
 
         public async void Api()
@@ -113,6 +92,53 @@ namespace Api
         {
             string text = Convert.ToString(search.Text);
             string url = @"http://api.openweathermap.org/data/2.5/weather?q=" + text + "&APPID=5431bc932d01f2d8b07a5818e24e4f52";
+
+            //валидатор 
+            try
+            {
+                if (!string.IsNullOrEmpty(url))
+                {
+                    UriBuilder uriBuilder = new UriBuilder(url);
+                    HttpWebRequest request2 = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                    HttpWebResponse response2 = (HttpWebResponse)request2.GetResponse();
+                    if (response2.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        MessageBox.Show("Населенный пункт не найден.");
+                        WebRequest request3 = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
+                        request3.Method = "POST";
+                        request3.ContentType = "application/x-www-urlencoded";
+                        WebResponse response3 = await request3.GetResponseAsync();
+                        string answer3 = string.Empty;
+                        using (Stream s = response3.GetResponseStream())
+                        {
+                            using (StreamReader reader = new StreamReader(s))
+                            {
+                                answer3 = await reader.ReadToEndAsync();
+                            }
+                        }
+                        response3.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Населенный пункт не найден.");
+                WebRequest request4 = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
+                request4.Method = "POST";
+                request4.ContentType = "application/x-www-urlencoded";
+                WebResponse response4 = await request4.GetResponseAsync();
+                string answer4 = string.Empty;
+                using (Stream s = response4.GetResponseStream())
+                {
+                    using (StreamReader reader = new StreamReader(s))
+                    {
+                        answer4 = await reader.ReadToEndAsync();
+                    }
+                }
+                response4.Close();
+            }
+
+
             WebRequest request = WebRequest.Create(url);
             request.Method = "POST";
             request.ContentType = "application/x-www-urlencoded";
