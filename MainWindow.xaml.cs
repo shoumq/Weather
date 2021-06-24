@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Net;
-using Newtonsoft.Json;
-using System.IO;
 using System.Windows.Threading;
-using System.Text.RegularExpressions;
 
 namespace Api
 {
@@ -93,56 +82,68 @@ namespace Api
             string text = Convert.ToString(search.Text);
             string url = @"http://api.openweathermap.org/data/2.5/weather?q=" + text + "&APPID=5431bc932d01f2d8b07a5818e24e4f52";
 
-            //валидатор 
             try
             {
-                if (!string.IsNullOrEmpty(url))
+                HttpWebRequest request2 = WebRequest.Create(url) as HttpWebRequest;
+                request2.Method = "HEAD";
+                HttpWebResponse response2 = request2.GetResponse() as HttpWebResponse;
+                response2.Close();
+                if (response2.StatusCode == HttpStatusCode.NotFound)
                 {
-                    UriBuilder uriBuilder = new UriBuilder(url);
-                    HttpWebRequest request2 = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
-                    HttpWebResponse response2 = (HttpWebResponse)request2.GetResponse();
-                    if (response2.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        MessageBox.Show("Населенный пункт не найден.");
-                        WebRequest request3 = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
-                        request3.Method = "POST";
-                        request3.ContentType = "application/x-www-urlencoded";
-                        WebResponse response3 = await request3.GetResponseAsync();
-                        string answer3 = string.Empty;
-                        using (Stream s = response3.GetResponseStream())
-                        {
-                            using (StreamReader reader = new StreamReader(s))
-                            {
-                                answer3 = await reader.ReadToEndAsync();
-                            }
-                        }
-                        response3.Close();
-                    }
+                    MessageBox.Show("Город не найден");
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("Населенный пункт не найден.");
-                WebRequest request4 = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
-                request4.Method = "POST";
-                request4.ContentType = "application/x-www-urlencoded";
-                WebResponse response4 = await request4.GetResponseAsync();
-                string answer4 = string.Empty;
-                using (Stream s = response4.GetResponseStream())
+                MessageBox.Show("Город не найден");
+                WebRequest requestn = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
+                requestn.Method = "POST";
+                requestn.ContentType = "application/x-www-urlencoded";
+                WebResponse responsen = await requestn.GetResponseAsync();
+                string answern = string.Empty;
+                using (Stream s = responsen.GetResponseStream())
                 {
                     using (StreamReader reader = new StreamReader(s))
                     {
-                        answer4 = await reader.ReadToEndAsync();
+                        answern = await reader.ReadToEndAsync();
                     }
                 }
-                response4.Close();
-            }
+                responsen.Close();
+                temp.Content = answern;
 
+                OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
+
+                temp.Content = oWn.main.temp.ToString("0.##") + "°C";
+
+                weather.Content = oWn.weather[0].main;
+                if (oWn.weather[0].main == "Clear")
+                {
+                    weather.Content = "Ясно";
+                }
+                if (oWn.weather[0].main == "Clouds")
+                {
+                    weather.Content = "Облачно";
+                }
+                if (oWn.weather[0].main == "Rain")
+                {
+                    weather.Content = "Дождь";
+                }
+
+                city.Content = oWn.name + ", " + oWn.sys.country;
+
+                gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
+
+                speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
+
+                humid.Content = "Влажность: " + oWn.main.humidity + "%";
+            }
 
             WebRequest request = WebRequest.Create(url);
             request.Method = "POST";
             request.ContentType = "application/x-www-urlencoded";
             WebResponse response = await request.GetResponseAsync();
+
+
             string answer = string.Empty;
             using (Stream s = response.GetResponseStream())
             {
