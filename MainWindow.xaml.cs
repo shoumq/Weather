@@ -25,7 +25,7 @@ namespace Api
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(string url)
         {
             InitializeComponent();
             Api();
@@ -35,7 +35,30 @@ namespace Api
             LiveTime.Start();
         }
 
-        private async void Api()
+        public void UrlValidator()
+        {
+            string text = Convert.ToString(search.Text);
+            string url = "http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52";
+            try
+            {
+                if (!string.IsNullOrEmpty(url))
+                {
+                    UriBuilder uriBuilder = new UriBuilder(url);
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uriBuilder.Uri);
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        MessageBox.Show("Населенный пунет не найден.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Населенный пунет не найден.");
+            }
+        }
+
+        public async void Api()
         {
             WebRequest request = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
             request.Method = "POST";
@@ -66,6 +89,10 @@ namespace Api
             {
                 weather.Content = "Облачно";
             }
+            if (oW.weather[0].main == "Rain")
+            {
+                weather.Content = "Дождь";
+            }
 
             city.Content = oW.name + ", " + oW.sys.country;
 
@@ -82,7 +109,7 @@ namespace Api
             timel.Content = DateTime.Now.ToString("HH:mm:ss");
         }
 
-        private async void searchb_Click(object sender, RoutedEventArgs e)
+        public async void searchb_Click(object sender, RoutedEventArgs e)
         {
             string text = Convert.ToString(search.Text);
             string url = @"http://api.openweathermap.org/data/2.5/weather?q=" + text + "&APPID=5431bc932d01f2d8b07a5818e24e4f52";
@@ -121,6 +148,10 @@ namespace Api
             {
                 weather.Content = "Облачно";
             }
+            if (oW.weather[0].main == "Rain")
+            {
+                weather.Content = "Дождь";
+            }
 
             city.Content = oW.name + ", " + oW.sys.country;
 
@@ -131,7 +162,7 @@ namespace Api
             humid.Content = "Влажность: " + oW.main.humidity + "%";
         }
 
-        private async void searchb_KeyDown(object sender, KeyEventArgs e)
+        public async void searchb_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -172,6 +203,10 @@ namespace Api
                 {
                     weather.Content = "Облачно";
                 }
+                if (oW.weather[0].main == "Rain")
+                {
+                    weather.Content = "Дождь";
+                }
 
                 city.Content = oW.name + ", " + oW.sys.country;
 
@@ -183,7 +218,7 @@ namespace Api
             }
         }
 
-        private async void search_KeyDown(object sender, KeyEventArgs e)
+        public async void search_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -244,7 +279,7 @@ namespace Api
             }
         }
 
-        private void search_TextChanged(object sender, TextChangedEventArgs e)
+        public void search_TextChanged(object sender, TextChangedEventArgs e)
         {
             //(sender as TextBox).Text = Regex.Replace((sender as TextBox).Text, @"\s+", "");
         }
