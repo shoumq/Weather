@@ -90,103 +90,108 @@ namespace Api
                 response2.Close();
                 if (response2.StatusCode == HttpStatusCode.NotFound)
                 {
-                    MessageBox.Show("Город не найден");
+                    WebRequest requestn = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
+                    requestn.Method = "POST";
+                    requestn.ContentType = "application/x-www-urlencoded";
+                    WebResponse responsen = await requestn.GetResponseAsync();
+                    string answern = string.Empty;
+                    using (Stream s = responsen.GetResponseStream())
+                    {
+                        using (StreamReader reader = new StreamReader(s))
+                        {
+                            answern = await reader.ReadToEndAsync();
+                        }
+                    }
+                    responsen.Close();
+                    temp.Content = answern;
+
+                    OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
+
+                    temp.Content = oWn.main.temp.ToString("0.##") + "°C";
+
+                    weather.Content = oWn.weather[0].main;
+                    if (oWn.weather[0].main == "Clear")
+                    {
+                        weather.Content = "Ясно";
+                    }
+                    if (oWn.weather[0].main == "Clouds")
+                    {
+                        weather.Content = "Облачно";
+                    }
+                    if (oWn.weather[0].main == "Rain")
+                    {
+                        weather.Content = "Дождь";
+                    }
+
+                    city.Content = oWn.name + ", " + oWn.sys.country;
+
+                    gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
+
+                    speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
+
+                    humid.Content = "Влажность: " + oWn.main.humidity + "%";
                 }
             }
             catch
             {
                 MessageBox.Show("Город не найден");
-                WebRequest requestn = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
-                requestn.Method = "POST";
-                requestn.ContentType = "application/x-www-urlencoded";
-                WebResponse responsen = await requestn.GetResponseAsync();
-                string answern = string.Empty;
-                using (Stream s = responsen.GetResponseStream())
+            }
+
+
+            try
+            {
+                HttpWebRequest request2 = WebRequest.Create(url) as HttpWebRequest;
+                request2.Method = "HEAD";
+                HttpWebResponse response2 = request2.GetResponse() as HttpWebResponse;
+                response2.Close();
+                if (response2.StatusCode == HttpStatusCode.OK)
                 {
-                    using (StreamReader reader = new StreamReader(s))
+                    WebRequest requestn = WebRequest.Create(url);
+                    requestn.Method = "POST";
+                    requestn.ContentType = "application/x-www-urlencoded";
+                    WebResponse responsen = await requestn.GetResponseAsync();
+                    string answern = string.Empty;
+                    using (Stream s = responsen.GetResponseStream())
                     {
-                        answern = await reader.ReadToEndAsync();
+                        using (StreamReader reader = new StreamReader(s))
+                        {
+                            answern = await reader.ReadToEndAsync();
+                        }
                     }
-                }
-                responsen.Close();
-                temp.Content = answern;
+                    responsen.Close();
+                    temp.Content = answern;
 
-                OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
+                    OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
 
-                temp.Content = oWn.main.temp.ToString("0.##") + "°C";
+                    temp.Content = oWn.main.temp.ToString("0.##") + "°C";
 
-                weather.Content = oWn.weather[0].main;
-                if (oWn.weather[0].main == "Clear")
-                {
-                    weather.Content = "Ясно";
-                }
-                if (oWn.weather[0].main == "Clouds")
-                {
-                    weather.Content = "Облачно";
-                }
-                if (oWn.weather[0].main == "Rain")
-                {
-                    weather.Content = "Дождь";
-                }
+                    weather.Content = oWn.weather[0].main;
+                    if (oWn.weather[0].main == "Clear")
+                    {
+                        weather.Content = "Ясно";
+                    }
+                    if (oWn.weather[0].main == "Clouds")
+                    {
+                        weather.Content = "Облачно";
+                    }
+                    if (oWn.weather[0].main == "Rain")
+                    {
+                        weather.Content = "Дождь";
+                    }
 
-                city.Content = oWn.name + ", " + oWn.sys.country;
+                    city.Content = oWn.name + ", " + oWn.sys.country;
 
-                gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
+                    gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
 
-                speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
+                    speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
 
-                humid.Content = "Влажность: " + oWn.main.humidity + "%";
-            }
-
-            WebRequest request = WebRequest.Create(url);
-            request.Method = "POST";
-            request.ContentType = "application/x-www-urlencoded";
-            WebResponse response = await request.GetResponseAsync();
-
-
-            string answer = string.Empty;
-            using (Stream s = response.GetResponseStream())
-            {
-                using (StreamReader reader = new StreamReader(s))
-                {
-                    answer = await reader.ReadToEndAsync();
+                    humid.Content = "Влажность: " + oWn.main.humidity + "%";
                 }
             }
-
-            if (text == "" || text == " ")
+            catch
             {
-                text = "Moscow";
+
             }
-
-            response.Close();
-            temp.Content = answer;
-
-            Image finalImage = new Image();
-            OpenWeather.OpenWeather oW = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answer);
-
-            temp.Content = oW.main.temp.ToString("0.##") + "°C";
-
-            weather.Content = oW.weather[0].main;
-            if (oW.weather[0].main == "Clear")
-            {
-                weather.Content = "Ясно";
-            }
-            if (oW.weather[0].main == "Clouds")
-            {
-                weather.Content = "Облачно";
-            }
-            if (oW.weather[0].main == "Rain")
-            {
-                weather.Content = "Дождь";
-            }
-
-            city.Content = oW.name + ", " + oW.sys.country;
-
-            gust.Content = "Порыв ветра: " + oW.wind.gust + "м/с";
-
-            speed.Content = "Скорость ветра: " + oW.wind.speed + "м/с";
-
-            humid.Content = "Влажность: " + oW.main.humidity + "%";
         }
 
         public async void searchb_KeyDown(object sender, KeyEventArgs e)
@@ -195,53 +200,117 @@ namespace Api
             {
                 string text = Convert.ToString(search.Text);
                 string url = @"http://api.openweathermap.org/data/2.5/weather?q=" + text + "&APPID=5431bc932d01f2d8b07a5818e24e4f52";
-                WebRequest request = WebRequest.Create(url);
-                request.Method = "POST";
-                request.ContentType = "application/x-www-urlencoded";
-                WebResponse response = await request.GetResponseAsync();
-                string answer = string.Empty;
-                using (Stream s = response.GetResponseStream())
+
+                try
                 {
-                    using (StreamReader reader = new StreamReader(s))
+                    HttpWebRequest request2 = WebRequest.Create(url) as HttpWebRequest;
+                    request2.Method = "HEAD";
+                    HttpWebResponse response2 = request2.GetResponse() as HttpWebResponse;
+                    response2.Close();
+                    if (response2.StatusCode == HttpStatusCode.NotFound)
                     {
-                        answer = await reader.ReadToEndAsync();
+                        WebRequest requestn = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
+                        requestn.Method = "POST";
+                        requestn.ContentType = "application/x-www-urlencoded";
+                        WebResponse responsen = await requestn.GetResponseAsync();
+                        string answern = string.Empty;
+                        using (Stream s = responsen.GetResponseStream())
+                        {
+                            using (StreamReader reader = new StreamReader(s))
+                            {
+                                answern = await reader.ReadToEndAsync();
+                            }
+                        }
+                        responsen.Close();
+                        temp.Content = answern;
+
+                        OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
+
+                        temp.Content = oWn.main.temp.ToString("0.##") + "°C";
+
+                        weather.Content = oWn.weather[0].main;
+                        if (oWn.weather[0].main == "Clear")
+                        {
+                            weather.Content = "Ясно";
+                        }
+                        if (oWn.weather[0].main == "Clouds")
+                        {
+                            weather.Content = "Облачно";
+                        }
+                        if (oWn.weather[0].main == "Rain")
+                        {
+                            weather.Content = "Дождь";
+                        }
+
+                        city.Content = oWn.name + ", " + oWn.sys.country;
+
+                        gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
+
+                        speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
+
+                        humid.Content = "Влажность: " + oWn.main.humidity + "%";
                     }
                 }
-
-                if (text == "" || text == " ")
+                catch
                 {
-                    text = "Moscow";
+                    MessageBox.Show("Город не найден");
                 }
 
-                response.Close();
-                temp.Content = answer;
 
-                Image finalImage = new Image();
-                OpenWeather.OpenWeather oW = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answer);
-
-                temp.Content = oW.main.temp.ToString("0.##") + "°C";
-
-                weather.Content = oW.weather[0].main;
-                if (oW.weather[0].main == "Clear")
+                try
                 {
-                    weather.Content = "Ясно";
+                    HttpWebRequest request2 = WebRequest.Create(url) as HttpWebRequest;
+                    request2.Method = "HEAD";
+                    HttpWebResponse response2 = request2.GetResponse() as HttpWebResponse;
+                    response2.Close();
+                    if (response2.StatusCode == HttpStatusCode.OK)
+                    {
+                        WebRequest requestn = WebRequest.Create(url);
+                        requestn.Method = "POST";
+                        requestn.ContentType = "application/x-www-urlencoded";
+                        WebResponse responsen = await requestn.GetResponseAsync();
+                        string answern = string.Empty;
+                        using (Stream s = responsen.GetResponseStream())
+                        {
+                            using (StreamReader reader = new StreamReader(s))
+                            {
+                                answern = await reader.ReadToEndAsync();
+                            }
+                        }
+                        responsen.Close();
+                        temp.Content = answern;
+
+                        OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
+
+                        temp.Content = oWn.main.temp.ToString("0.##") + "°C";
+
+                        weather.Content = oWn.weather[0].main;
+                        if (oWn.weather[0].main == "Clear")
+                        {
+                            weather.Content = "Ясно";
+                        }
+                        if (oWn.weather[0].main == "Clouds")
+                        {
+                            weather.Content = "Облачно";
+                        }
+                        if (oWn.weather[0].main == "Rain")
+                        {
+                            weather.Content = "Дождь";
+                        }
+
+                        city.Content = oWn.name + ", " + oWn.sys.country;
+
+                        gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
+
+                        speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
+
+                        humid.Content = "Влажность: " + oWn.main.humidity + "%";
+                    }
                 }
-                if (oW.weather[0].main == "Clouds")
+                catch
                 {
-                    weather.Content = "Облачно";
+
                 }
-                if (oW.weather[0].main == "Rain")
-                {
-                    weather.Content = "Дождь";
-                }
-
-                city.Content = oW.name + ", " + oW.sys.country;
-
-                gust.Content = "Порыв ветра: " + oW.wind.gust + "м/с";
-
-                speed.Content = "Скорость ветра: " + oW.wind.speed + "м/с";
-
-                humid.Content = "Влажность: " + oW.main.humidity + "%";
             }
         }
 
@@ -252,56 +321,116 @@ namespace Api
                 e.Handled = true;
                 string text = Convert.ToString(search.Text);
                 string url = @"http://api.openweathermap.org/data/2.5/weather?q=" + text + "&APPID=5431bc932d01f2d8b07a5818e24e4f52";
-                WebRequest request = WebRequest.Create(url);
-                request.Method = "POST";
-                request.ContentType = "application/x-www-urlencoded";
-                WebResponse response = await request.GetResponseAsync();
-                string answer = string.Empty;
-                using (Stream s = response.GetResponseStream())
+
+                try
                 {
-                    using (StreamReader reader = new StreamReader(s))
+                    HttpWebRequest request2 = WebRequest.Create(url) as HttpWebRequest;
+                    request2.Method = "HEAD";
+                    HttpWebResponse response2 = request2.GetResponse() as HttpWebResponse;
+                    response2.Close();
+                    if (response2.StatusCode == HttpStatusCode.NotFound)
                     {
-                        answer = await reader.ReadToEndAsync();
+                        WebRequest requestn = WebRequest.Create("http://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID=5431bc932d01f2d8b07a5818e24e4f52");
+                        requestn.Method = "POST";
+                        requestn.ContentType = "application/x-www-urlencoded";
+                        WebResponse responsen = await requestn.GetResponseAsync();
+                        string answern = string.Empty;
+                        using (Stream s = responsen.GetResponseStream())
+                        {
+                            using (StreamReader reader = new StreamReader(s))
+                            {
+                                answern = await reader.ReadToEndAsync();
+                            }
+                        }
+                        responsen.Close();
+                        temp.Content = answern;
+
+                        OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
+
+                        temp.Content = oWn.main.temp.ToString("0.##") + "°C";
+
+                        weather.Content = oWn.weather[0].main;
+                        if (oWn.weather[0].main == "Clear")
+                        {
+                            weather.Content = "Ясно";
+                        }
+                        if (oWn.weather[0].main == "Clouds")
+                        {
+                            weather.Content = "Облачно";
+                        }
+                        if (oWn.weather[0].main == "Rain")
+                        {
+                            weather.Content = "Дождь";
+                        }
+
+                        city.Content = oWn.name + ", " + oWn.sys.country;
+
+                        gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
+
+                        speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
+
+                        humid.Content = "Влажность: " + oWn.main.humidity + "%";
                     }
                 }
-
-                if (text == "" || text == " ")
+                catch
                 {
-                    text = "Moscow";
+                    MessageBox.Show("Город не найден");
                 }
 
-                response.Close();
-                temp.Content = answer;
 
-                Image finalImage = new Image();
-                OpenWeather.OpenWeather oW = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answer);
-
-                temp.Content = oW.main.temp.ToString("0.##") + "°C";
-
-                weather.Content = oW.weather[0].main;
-                if (oW.weather[0].main == "Clear")
+                try
                 {
-                    weather.Content = "Ясно";
+                    HttpWebRequest request2 = WebRequest.Create(url) as HttpWebRequest;
+                    request2.Method = "HEAD";
+                    HttpWebResponse response2 = request2.GetResponse() as HttpWebResponse;
+                    response2.Close();
+                    if (response2.StatusCode == HttpStatusCode.OK)
+                    {
+                        WebRequest requestn = WebRequest.Create(url);
+                        requestn.Method = "POST";
+                        requestn.ContentType = "application/x-www-urlencoded";
+                        WebResponse responsen = await requestn.GetResponseAsync();
+                        string answern = string.Empty;
+                        using (Stream s = responsen.GetResponseStream())
+                        {
+                            using (StreamReader reader = new StreamReader(s))
+                            {
+                                answern = await reader.ReadToEndAsync();
+                            }
+                        }
+                        responsen.Close();
+                        temp.Content = answern;
+
+                        OpenWeather.OpenWeather oWn = JsonConvert.DeserializeObject<OpenWeather.OpenWeather>(answern);
+
+                        temp.Content = oWn.main.temp.ToString("0.##") + "°C";
+
+                        weather.Content = oWn.weather[0].main;
+                        if (oWn.weather[0].main == "Clear")
+                        {
+                            weather.Content = "Ясно";
+                        }
+                        if (oWn.weather[0].main == "Clouds")
+                        {
+                            weather.Content = "Облачно";
+                        }
+                        if (oWn.weather[0].main == "Rain")
+                        {
+                            weather.Content = "Дождь";
+                        }
+
+                        city.Content = oWn.name + ", " + oWn.sys.country;
+
+                        gust.Content = "Порыв ветра: " + oWn.wind.gust + "м/с";
+
+                        speed.Content = "Скорость ветра: " + oWn.wind.speed + "м/с";
+
+                        humid.Content = "Влажность: " + oWn.main.humidity + "%";
+                    }
                 }
-                if (oW.weather[0].main == "Clouds")
+                catch
                 {
-                    weather.Content = "Облачно";
-                }
-                if (oW.weather[0].main == "Rain")
-                {
-                    weather.Content = "Дождь";
-                }
 
-                city.Content = oW.name + ", " + oW.sys.country;
-
-                gust.Content = "Порыв ветра: " + oW.wind.gust + "м/с";
-
-                speed.Content = "Скорость ветра: " + oW.wind.speed + "м/с";
-
-                humid.Content = "Влажность: " + oW.main.humidity + "%";
-                if (text == "" || text == " ")
-                {
-                    text = "Moscow";
                 }
             }
         }
