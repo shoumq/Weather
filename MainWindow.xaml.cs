@@ -242,7 +242,7 @@ namespace Api
 
         private void search_TextChanged(object sender, TextChangedEventArgs e)
         {
-            (sender as TextBox).Text = Regex.Replace((sender as TextBox).Text, @"\s+", "");
+            //(sender as TextBox).Text = Regex.Replace((sender as TextBox).Text, @"\s+", "");
         }
     }
 
