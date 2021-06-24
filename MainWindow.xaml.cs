@@ -225,6 +225,10 @@ namespace Api
                 {
                     weather.Content = "Облачно";
                 }
+                if (oW.weather[0].main == "Rain")
+                {
+                    weather.Content = "Дождь";
+                }
 
                 city.Content = oW.name + ", " + oW.sys.country;
 
@@ -242,7 +246,7 @@ namespace Api
 
         private void search_TextChanged(object sender, TextChangedEventArgs e)
         {
-            (sender as TextBox).Text = Regex.Replace((sender as TextBox).Text, @"\s+", "");
+            //(sender as TextBox).Text = Regex.Replace((sender as TextBox).Text, @"\s+", "");
         }
     }
 
